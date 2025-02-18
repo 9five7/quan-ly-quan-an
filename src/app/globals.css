@@ -70,6 +70,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
- a {
-  @apply text-red-400
- }
