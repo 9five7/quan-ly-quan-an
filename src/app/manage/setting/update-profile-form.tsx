@@ -1,6 +1,4 @@
 'use client'
-import accountApiRequest from '@/apiRequests/account'
-import mediaApiRequest from '@/apiRequests/media'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -28,7 +26,7 @@ export default function UpdateProfileForm() {
       avatar: ''
     }
   })
-  const {data,refetch} = useAccountQuery()
+  const { data, refetch } = useAccountQuery()
   const uploadImageMutation = useUploadImageMutation()
   const updateMeMutation = useUpdateMeMutation()
   const avatar = form.watch('avatar')
@@ -45,22 +43,22 @@ export default function UpdateProfileForm() {
     form.reset()
   }
   const onSubmit = async (value: UpdateMeBodyType) => {
-    if(updateMeMutation.isPending ) return
+    if (updateMeMutation.isPending) return
     try {
-      let body= value
+      let body = value
       if (file) {
-       const formData= new FormData()
-       formData.append('file', file)
-       const uploadImageResult = await uploadImageMutation.mutateAsync(formData)
-      const imageUrl= uploadImageResult.payload.data
-      body={
-        ...value,
-        avatar: imageUrl
-      }
+        const formData = new FormData()
+        formData.append('file', file)
+        const uploadImageResult = await uploadImageMutation.mutateAsync(formData)
+        const imageUrl = uploadImageResult.payload.data
+        body = {
+          ...value,
+          avatar: imageUrl
+        }
       }
       const result = await updateMeMutation.mutateAsync(body)
       toast({
-        description: result.payload.message,
+        description: result.payload.message
       })
       refetch()
     } catch (error) {
@@ -70,7 +68,12 @@ export default function UpdateProfileForm() {
 
   return (
     <Form {...form}>
-      <form noValidate className='grid auto-rows-max items-start gap-4 md:gap-8' onReset={resetAvatar} onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        noValidate
+        className='grid auto-rows-max items-start gap-4 md:gap-8'
+        onReset={resetAvatar}
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
         <Card x-chunk='dashboard-07-chunk-0'>
           <CardHeader>
             <CardTitle>Thông tin cá nhân</CardTitle>
