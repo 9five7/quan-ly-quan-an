@@ -10,12 +10,14 @@ import { handleErrorApi } from '@/lib/utils'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
 export default function LoginForm() {
   const loginMutation = useMutation({
     mutationFn: authApiRequest.login
   })
+   const router = useRouter()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -27,8 +29,8 @@ export default function LoginForm() {
     console.log('Dữ liệu gửi lên API:', data) // Kiểm tra dữ liệu gửi đi
     try {
       const result = await loginMutation.mutateAsync(data)
-      console.log('Kết quả từ API:', result)
       toast({ description: result.payload.message })
+      router.push('/manage/dashboard')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Lỗi API:', error)
