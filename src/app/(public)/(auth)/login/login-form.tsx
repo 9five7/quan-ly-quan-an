@@ -1,14 +1,21 @@
 'use client'
+import authApiRequest from '@/apiRequests/auth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/hooks/use-toast'
+import { handleErrorApi } from '@/lib/utils'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
 export default function LoginForm() {
+  const loginMutation = useMutation({
+    mutationFn: authApiRequest.login
+  })
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -16,7 +23,18 @@ export default function LoginForm() {
       password: ''
     }
   })
-
+  const onSubmit = async (data: LoginBodyType) => {
+    console.log('Dữ liệu gửi lên API:', data) // Kiểm tra dữ liệu gửi đi
+    try {
+      const result = await loginMutation.mutateAsync(data)
+      console.log('Kết quả từ API:', result)
+      toast({ description: result.payload.message })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error('Lỗi API:', error)
+      handleErrorApi({ error, setError: form.setError })
+    }
+  }
   return (
     <Card className='mx-auto max-w-sm'>
       <CardHeader>
@@ -25,7 +43,11 @@ export default function LoginForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form className='space-y-2 max-w-[600px] flex-shrink-0 w-full' noValidate>
+          <form
+            className='space-y-2 max-w-[600px] flex-shrink-0 w-full'
+            noValidate
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
             <div className='grid gap-4'>
               <FormField
                 control={form.control}
