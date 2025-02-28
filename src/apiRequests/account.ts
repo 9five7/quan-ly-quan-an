@@ -4,7 +4,9 @@ import { AccountResType, ChangePasswordBodyType, UpdateMeBodyType } from '@/sche
 const accountApiRequest = {
   me: () => http.get<AccountResType>('/accounts/me'),
   updateMe: (body:UpdateMeBodyType) => http.put<AccountResType>('/accounts/me', body),
-  changePassword: (body: ChangePasswordBodyType) => http.put<AccountResType>('/accounts/change-password', body)
+  changePassword: (body: ChangePasswordBodyType) => http.put<AccountResType>('/accounts/change-password', body),
+
+
 
 }
 export default accountApiRequest

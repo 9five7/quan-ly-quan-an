@@ -1,24 +1,32 @@
-import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
- 
-const privatePaths=['/manage']
-const unAuthPaths=['/login']
+import { NextResponse } from 'next/server'
+
+const privatePaths = ['/manage']
+const unAuthPaths = ['/login']
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-    const {pathname}=request.nextUrl
-    const isAuth=Boolean(request.cookies.get('accessToken')?.value)
-    //nếu chưa đăng nhập thì không cho vào trang quản lý
-    if(privatePaths.some((path)=>pathname.startsWith(path))&& !isAuth){
-        return NextResponse.redirect(new URL('/login', request.url))
-    }
-    //đăng nhập rồi thì không cho vào trang login nữa
-    if(unAuthPaths.some((path)=>pathname.startsWith(path))&& isAuth){
-        return NextResponse.redirect(new URL('/', request.url))
-    }
+  const { pathname } = request.nextUrl
+  const accessToken = request.cookies.get('accessToken')?.value
+  const refreshToken = request.cookies.get('refreshToken')?.value
+  //nếu chưa đăng nhập thì không cho vào trang quản lý
+  if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+  //đăng nhập rồi thì không cho vào trang login nữa
+  if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
+  // đăng nhập rồi mà hết hạn token
+  if (privatePaths.some((path) => pathname.startsWith(path)) && !accessToken && refreshToken) {
+    const url = new URL('/logout', request.url)
+    url.searchParams.set('refreshToken', refreshToken)
+    return NextResponse.redirect(url)
+  }
+
   return NextResponse.next()
 }
- 
+
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/manage/:path*','/login'],
+  matcher: ['/manage/:path*', '/login']
 }
