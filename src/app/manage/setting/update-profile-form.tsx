@@ -83,6 +83,7 @@ export default function UpdateProfileForm() {
               <FormField
                 control={form.control}
                 name='avatar'
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 render={({ field }) => (
                   <FormItem>
                     <div className='flex gap-2 items-start justify-start'>

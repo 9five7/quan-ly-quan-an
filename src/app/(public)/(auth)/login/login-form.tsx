@@ -1,4 +1,4 @@
-
+"use client"
 import { useAppContext } from '@/components/app-provider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -38,6 +38,7 @@ export default function LoginForm() {
     try {
       const result = await loginMutation.mutateAsync(data)
       toast({ description: result.payload.message })
+      setIsAuth(true)
       router.push('/manage/dashboard')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

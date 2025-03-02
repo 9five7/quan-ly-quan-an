@@ -17,7 +17,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function DropdownAvatar() {
-  const logountMuation = useMutation({
+  const logoutMutation = useMutation({
     mutationFn: authApiRequest.logout
   })
   const useAccountProfile = useAccountQuery()
@@ -25,9 +25,9 @@ export default function DropdownAvatar() {
   const account = data?.payload.data
   const router = useRouter()
   const logout = async () => {
-    if (logountMuation.isPending) return
+    if (logoutMutation.isPending) return
     try {
-      await logountMuation.mutateAsync()
+      await logoutMutation.mutateAsync()
       router.push('/')
     } catch (error) {
       handleErrorApi({ error })
