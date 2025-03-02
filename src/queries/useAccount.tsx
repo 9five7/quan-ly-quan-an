@@ -2,6 +2,11 @@ import accountApiRequest from '@/apiRequests/account'
 import authApiRequest from '@/apiRequests/auth'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
+export const useLoginMutation = () => {
+  return useMutation({
+    mutationFn: authApiRequest.login
+  })
+}
 export const useAccountQuery = () => {
   return useQuery({
     queryKey: ['account', 'me'],

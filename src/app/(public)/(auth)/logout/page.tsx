@@ -12,21 +12,23 @@ export default function LogoutPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = useRef<any>(null)
   useEffect(() => {
+    // nếu chưa đăng nhập thì không cho vào trang quản lý 
     if (
-      ref.current ||
-      refreshTokenFromUrl !== getRefreshTokenFormLocalStorage() ||
-      accessTokenFromUrl !== getAccessTokenFormLocalStorage()
+      !ref.current &&
+      ((refreshTokenFromUrl && refreshTokenFromUrl === getRefreshTokenFormLocalStorage()) ||
+        (accessTokenFromUrl && accessTokenFromUrl === getAccessTokenFormLocalStorage()))
     ) {
-      return
+      ref.current = mutateAsync
+      mutateAsync().then(() => {
+        setTimeout(() => {
+          ref.current = null
+        }, 1000)
+        router.push('/login')
+      })
+    } else {
+      router.push('/')
     }
     // check refrshtoken có giống trong localStorage không
-    ref.current = mutateAsync
-    mutateAsync().then(() => {
-      setTimeout(() => {
-        ref.current = null
-      }, 1000)
-      router.push('/login')
-    })
-  }, [mutateAsync, router, refreshTokenFromUrl,accessTokenFromUrl])
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl])
   return <div>Logout...</div>
 }

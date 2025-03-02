@@ -1,5 +1,5 @@
-'use client'
-import authApiRequest from '@/apiRequests/auth'
+
+import { useAppContext } from '@/components/app-provider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
@@ -7,17 +7,20 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/hooks/use-toast'
 import { handleErrorApi } from '@/lib/utils'
+import { useLoginMutation } from '@/queries/useAccount'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
+
 import { useForm } from 'react-hook-form'
 
 export default function LoginForm() {
-  const loginMutation = useMutation({
-    mutationFn: authApiRequest.login
-  })
-   const router = useRouter()
+  const loginMutation = useLoginMutation()
+  const searchParams = useSearchParams()
+  const clearToken = searchParams.get('clearTokens')
+  const { setIsAuth } = useAppContext()
+  const router = useRouter()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
@@ -25,8 +28,13 @@ export default function LoginForm() {
       password: ''
     }
   })
+  useEffect(() => {
+    if (clearToken) {
+      setIsAuth(false)
+    }
+  }, [clearToken, setIsAuth])
   const onSubmit = async (data: LoginBodyType) => {
-    console.log('Dữ liệu gửi lên API:', data) // Kiểm tra dữ liệu gửi đi
+    if (loginMutation.isPending) return // Kiểm tra dữ liệu gửi đi
     try {
       const result = await loginMutation.mutateAsync(data)
       toast({ description: result.payload.message })

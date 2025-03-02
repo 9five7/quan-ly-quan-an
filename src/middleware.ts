@@ -10,7 +10,9 @@ export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get('refreshToken')?.value
   //nếu chưa đăng nhập thì không cho vào trang quản lý
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const url = new URL('/login', request.url)
+    url.searchParams.set('clearTokens', 'true')
+    return NextResponse.redirect(url)
   }
   //đăng nhập rồi thì không cho vào trang login nữa
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
@@ -18,8 +20,9 @@ export function middleware(request: NextRequest) {
   }
   // đăng nhập rồi mà hết hạn token
   if (privatePaths.some((path) => pathname.startsWith(path)) && !accessToken && refreshToken) {
-    const url = new URL('/logout', request.url)
+    const url = new URL('/refresh-token', request.url)
     url.searchParams.set('refreshToken', refreshToken)
+    url.searchParams.set('redirect', pathname)
     return NextResponse.redirect(url)
   }
 
