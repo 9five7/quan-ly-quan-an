@@ -23,7 +23,7 @@ export default function UpdateProfileForm() {
     resolver: zodResolver(UpdateMeBody),
     defaultValues: {
       name: '',
-      avatar: ''
+      avatar: undefined
     }
   })
   const { data, refetch } = useAccountQuery()
@@ -34,7 +34,7 @@ export default function UpdateProfileForm() {
   useEffect(() => {
     if (data) {
       const { name, avatar } = data.payload.data
-      form.reset({ name, avatar: avatar ?? '' })
+      form.reset({ name, avatar: avatar ?? undefined })
     }
   }, [form, data])
   const previewAvatar = file ? URL.createObjectURL(file) : avatar
