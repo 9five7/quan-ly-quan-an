@@ -1,11 +1,10 @@
-"use client"
+'use client'
 import { useAppContext } from '@/components/app-provider'
 import { getAccessTokenFormLocalStorage, getRefreshTokenFormLocalStorage } from '@/lib/utils'
 import { useLogoutMutation } from '@/queries/useAccount'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
-
-export default function LogoutPage() {
+import { Suspense, useEffect, useRef } from 'react'
+function Logout() {
   const { mutateAsync } = useLogoutMutation()
   const router = useRouter()
   const { setIsAuth } = useAppContext()
@@ -35,4 +34,9 @@ export default function LogoutPage() {
     // check refrshtoken có giống trong localStorage không
   }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setIsAuth])
   return <div>Logout...</div>
+}
+export default function LogoutPage() {
+  ;<Suspense>
+    <Logout />
+  </Suspense>
 }
