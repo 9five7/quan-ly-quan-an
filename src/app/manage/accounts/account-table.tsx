@@ -42,10 +42,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { toast } from '@/hooks/use-toast'
+import { handleErrorApi } from '@/lib/utils'
+import { useAccountListQuery, useDeleteEmployeeMutation } from '@/queries/useAccount'
 import { AccountListResType, AccountType } from '@/schemaValidations/account.schema'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { useAccountListQuery } from '@/queries/useAccount'
 
 type AccountItem = AccountListResType['data'][0]
 
@@ -134,6 +136,23 @@ function AlertDialogDeleteAccount({
   employeeDelete: AccountItem | null
   setEmployeeDelete: (value: AccountItem | null) => void
 }) {
+  const { mutateAsync } = useDeleteEmployeeMutation()
+  const deleteEmployee = async () => {
+    if (employeeDelete) {
+      try {
+        const result = await mutateAsync(employeeDelete.id)
+        setEmployeeDelete(null)
+        toast({
+          description: result.payload.message
+        })
+      } catch (error) {
+        handleErrorApi({
+          error
+        })
+      }
+    }
+  }
+
   return (
     <AlertDialog
       open={Boolean(employeeDelete)}
@@ -153,7 +172,7 @@ function AlertDialogDeleteAccount({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={deleteEmployee}>Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
