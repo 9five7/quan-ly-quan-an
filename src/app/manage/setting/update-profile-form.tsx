@@ -17,8 +17,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 export default function UpdateProfileForm() {
+  // State lưu trữ file ảnh được chọn
   const [file, setFile] = useState<File | null>(null)
+  // Ref để tham chiếu đến input file (avatar)
   const avatarInputRef = useRef<HTMLInputElement>(null)
+  // Khởi tạo form với react-hook-form và zod để validate dữ liệu
   const form = useForm<UpdateMeBodyType>({
     resolver: zodResolver(UpdateMeBody),
     defaultValues: {
@@ -26,18 +29,25 @@ export default function UpdateProfileForm() {
       avatar: undefined
     }
   })
+  // Fetch dữ liệu tài khoản hiện tại
   const { data, refetch } = useAccountQuery()
+  // Mutation để upload ảnh lên server
   const uploadImageMutation = useUploadImageMutation()
+  // Mutation để cập nhật thông tin cá nhân
   const updateMeMutation = useUpdateMeMutation()
+  // Lấy giá trị avatar và name từ form
   const avatar = form.watch('avatar')
   const name = form.watch('name')
+  // Khi có dữ liệu user từ API, cập nhật lại form
   useEffect(() => {
     if (data) {
       const { name, avatar } = data.payload.data
-      form.reset({ name, avatar: avatar ?? undefined })
+      form.reset({ name, avatar: avatar ?? undefined }) // Nếu avatar null thì đặt undefined để tránh lỗi
     }
   }, [form, data])
+  // Tạo ảnh preview: nếu có file mới, dùng URL.createObjectURL, nếu không thì dùng avatar từ API
   const previewAvatar = file ? URL.createObjectURL(file) : avatar
+  // Hàm reset avatar về trạng thái ban đầu
   const resetAvatar = () => {
     setFile(null)
     form.reset()

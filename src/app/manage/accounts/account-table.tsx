@@ -45,6 +45,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AccountListResType, AccountType } from '@/schemaValidations/account.schema'
 import { useSearchParams } from 'next/navigation'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { useAccountListQuery } from '@/queries/useAccount'
 
 type AccountItem = AccountListResType['data'][0]
 
@@ -168,7 +169,8 @@ export default function AccountTable() {
   const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>()
   const [employeeDelete, setEmployeeDelete] = useState<AccountItem | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const data: any[] = []
+  const getAccountList = useAccountListQuery()
+  const data = getAccountList.data?.payload.data ?? []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
