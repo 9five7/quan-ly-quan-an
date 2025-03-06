@@ -5,7 +5,7 @@ const privatePaths = ['/manage']
 const unAuthPaths = ['/login']
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname } = request.nextUrl 
   const accessToken = request.cookies.get('accessToken')?.value
   const refreshToken = request.cookies.get('refreshToken')?.value
   //nếu chưa đăng nhập thì không cho vào trang quản lý

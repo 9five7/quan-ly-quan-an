@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import authApiRequest from '@/apiRequests/auth'
+import envConfig from '@/config'
+import { TableStatus } from '@/constants/type'
 import { toast } from '@/hooks/use-toast'
 import { EntityError } from '@/lib/http'
 import { clsx, type ClassValue } from 'clsx'
@@ -86,4 +88,31 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
       }
     }
   }
+}
+export const getVietnameseDishStatus = (status: string) => {
+  switch (status) {
+    case 'ACTIVE':
+      return 'Hoạt động'
+    case 'INACTIVE':
+      return 'Không hoạt động'
+    default:
+      return 'Không xác định'
+  }
+}
+export const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
+}
+
+export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof typeof TableStatus]) => {
+  switch (status) {
+    case TableStatus.Available:
+      return 'Có sẵn'
+    case TableStatus.Reserved:
+      return 'Đã đặt'
+    default:
+      return 'Ẩn'
+  }
+}
+export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
+  return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
 }
