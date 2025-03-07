@@ -35,7 +35,7 @@ export default function EditEmployee({
 }) {
   const [file, setFile] = useState<File | null>(null)
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
-  const { data } = useAccountQueryById({ id: id!, enabled: true })
+  const { data } = useAccountQueryById({ id: id as number, enabled: Boolean(id) })
   const form = useForm<UpdateEmployeeAccountBodyType>({
     resolver: zodResolver(UpdateEmployeeAccountBody),
     defaultValues: {

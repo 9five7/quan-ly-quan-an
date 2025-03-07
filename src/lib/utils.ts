@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import authApiRequest from '@/apiRequests/auth'
 import envConfig from '@/config'
-import { TableStatus } from '@/constants/type'
+import { DishStatus, TableStatus } from '@/constants/type'
 import { toast } from '@/hooks/use-toast'
 import { EntityError } from '@/lib/http'
 import { clsx, type ClassValue } from 'clsx'
@@ -89,14 +89,14 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
     }
   }
 }
-export const getVietnameseDishStatus = (status: string) => {
+export const getVietnameseDishStatus = (status: (typeof DishStatus)[keyof typeof DishStatus]) => {
   switch (status) {
-    case 'ACTIVE':
-      return 'Hoạt động'
-    case 'INACTIVE':
-      return 'Không hoạt động'
+    case DishStatus.Available:
+      return 'Có sẵn'
+    case DishStatus.Unavailable:
+      return 'Không có sẵn'
     default:
-      return 'Không xác định'
+      return 'Ẩn'
   }
 }
 export const formatCurrency = (value: number) => {
