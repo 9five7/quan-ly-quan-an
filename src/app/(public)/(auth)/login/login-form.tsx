@@ -19,7 +19,7 @@ export default function LoginForm() {
   const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
   const clearToken = searchParams.get('clearTokens')
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
   const router = useRouter()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -30,15 +30,15 @@ export default function LoginForm() {
   })
   useEffect(() => {
     if (clearToken) {
-      setIsAuth(false)
+      setRole()
     }
-  }, [clearToken, setIsAuth])
+  }, [clearToken, setRole])
   const onSubmit = async (data: LoginBodyType) => {
     if (loginMutation.isPending) return // Kiểm tra dữ liệu gửi đi
     try {
       const result = await loginMutation.mutateAsync(data)
       toast({ description: result.payload.message })
-      setIsAuth(true)
+      setRole(result.payload.data.account.role)
       router.push('/manage/dashboard')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

@@ -5,6 +5,7 @@ import envConfig from '@/config'
 import { DishStatus, TableStatus } from '@/constants/type'
 import { toast } from '@/hooks/use-toast'
 import { EntityError } from '@/lib/http'
+import { TokenPayload } from '@/types/jwt.types'
 import { clsx, type ClassValue } from 'clsx'
 import jwt from 'jsonwebtoken'
 import { UseFormSetError } from 'react-hook-form'
@@ -57,13 +58,11 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   const refreshToken = getRefreshTokenFormLocalStorage()
   // chưa đăng nhập thì cũng ko cho chạy
   if (!accessToken || !refreshToken) return
-  const decodedAccessToken = jwt.decode(accessToken) as { iat: number; exp: number }
+  const decodedAccessToken = decodeToken(accessToken)
   // giải mã access token để lấy thời gian hết hạn
-  const decodedRefreshToken = jwt.decode(refreshToken) as {
-    iat: number
-    exp: number
-    // giải mã refresh token để lấy thời gian hết hạn
-  }
+  const decodedRefreshToken = decodeToken(refreshToken)
+  // giải mã refresh token để lấy thời gian hết hạn
+
   const now = new Date().getTime() / 1000 - 1
   // trường hợp refresh token hết hạn thì cho logout
   if (decodedRefreshToken.exp <= now) {
@@ -115,4 +114,7 @@ export const getVietnameseTableStatus = (status: (typeof TableStatus)[keyof type
 }
 export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
   return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+}
+export const decodeToken = (token: string) => {
+  return jwt.decode(token) as TokenPayload
 }

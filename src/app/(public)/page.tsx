@@ -42,6 +42,7 @@ export default async function Home() {
                     src={dish.image}
                     width={150}
                     height={150}
+                    quality={100}
                     alt={dish.name}
                     className='object-cover rounded-md'
                   />

@@ -1,5 +1,6 @@
 'use client'
 import authApiRequest from '@/apiRequests/auth'
+import { useAppContext } from '@/components/app-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,6 +22,7 @@ export default function DropdownAvatar() {
     mutationFn: authApiRequest.logout
   })
   const useAccountProfile = useAccountQuery()
+  const { setRole } = useAppContext()
   const data = useAccountProfile.data
   const account = data?.payload.data
   const router = useRouter()
@@ -28,6 +30,7 @@ export default function DropdownAvatar() {
     if (logoutMutation.isPending) return
     try {
       await logoutMutation.mutateAsync()
+      setRole()
       router.push('/')
     } catch (error) {
       handleErrorApi({ error })

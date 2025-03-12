@@ -7,7 +7,7 @@ import { Suspense, useEffect, useRef } from 'react'
 function Logout() {
   const { mutateAsync } = useLogoutMutation()
   const router = useRouter()
-  const { setIsAuth } = useAppContext()
+  const { setRole } = useAppContext()
   const searchParams = useSearchParams()
   const refreshTokenFromUrl = searchParams.get('refreshToken')
   const accessTokenFromUrl = searchParams.get('accssToken')
@@ -25,14 +25,14 @@ function Logout() {
         setTimeout(() => {
           ref.current = null
         }, 1000)
-        setIsAuth(false)
+        setRole()
         router.push('/login')
       })
     } else {
       router.push('/')
     }
     // check refrshtoken có giống trong localStorage không
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setIsAuth])
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole])
   return <div>Logout...</div>
 }
 export default function LogoutPage() {
