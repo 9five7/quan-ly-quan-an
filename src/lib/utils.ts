@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import authApiRequest from '@/apiRequests/auth'
+import guestApiRequest from '@/apiRequests/guest'
 import envConfig from '@/config'
-import { DishStatus, TableStatus } from '@/constants/type'
+import { DishStatus, Role, TableStatus } from '@/constants/type'
 import { toast } from '@/hooks/use-toast'
 import { EntityError } from '@/lib/http'
 import { TokenPayload } from '@/types/jwt.types'
@@ -75,7 +76,8 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   //thời gian hết hạn của access token - thời gian hiện tại: decodedAccessToken.exp - decodedAccessToken.iat
   if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
     try {
-      const res = await authApiRequest.refreshToken()
+      const role = decodedRefreshToken.role
+      const res = role === Role.Guest ? await guestApiRequest.refreshToken() : await authApiRequest.refreshToken()
       setAccessTokenToLocalStorage(res.payload.data.accessToken)
       setAccessTokenToLocalStorage(res.payload.data.refreshToken)
       if (param?.onSuccess) {
