@@ -21,23 +21,23 @@ export function middleware(request: NextRequest) {
   // 2.Trường hợp đã đăng nhập
   if (refreshToken) {
     // 2.1 : nếu cố tình vào trang login  sẽ redirect về trang chủ
-    if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
+    if (unAuthPaths.some((path) => pathname.startsWith(path))) {
       return NextResponse.redirect(new URL('/', request.url))
     }
     // 2.2 : đăng nhập rồi mà hết hạn token
-    if (privatePaths.some((path) => pathname.startsWith(path)) && !accessToken && refreshToken) {
+    if (privatePaths.some((path) => pathname.startsWith(path)) && !accessToken) {
       const url = new URL('/refresh-token', request.url)
       url.searchParams.set('refreshToken', refreshToken)
       url.searchParams.set('redirect', pathname)
       return NextResponse.redirect(url)
     }
-    //2.3 : vào ko đúng role thì redirect về trang chủ 
-    const role=decodeToken(refreshToken).role
+    //2.3 : vào ko đúng role thì redirect về trang chủ
+    const role = decodeToken(refreshToken).role
     // guest nhưng cố vào trang quản lý
-    const isGuestToPathManage = managePaths.some((path) => pathname.startsWith(path)) && role === Role.Guest
+    const isGuestGoToManagePath = role === Role.Guest && managePaths.some((path) => pathname.startsWith(path))
     // manage nhưng cố vào trang guest
-    const isManageToPathGuest = guestPaths.some((path) => pathname.startsWith(path)) && role !== Role.Guest
-    if (isGuestToPathManage || isManageToPathGuest) {
+    const isNotGuestGoToGuestPath = role !== Role.Guest && guestPaths.some((path) => pathname.startsWith(path))
+    if (isGuestGoToManagePath || isNotGuestGoToGuestPath) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
@@ -47,5 +47,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/manage/:path*','/guest/:path*', '/login']
+  matcher: ['/manage/:path*', '/guest/:path*', '/login']
 }

@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import authApiRequest from '@/apiRequests/auth'
-import { cookies } from 'next/headers'
+import guestApiRequest from '@/apiRequests/guest'
 import jwt from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 
-export async function POST() {
-  const cookieStore = cookies()
-  const refreshToken = (await cookieStore).get('refreshToken')?.value // Lấy refreshToken từ cookie
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function POST(request: Request) {
+  const cookieStore = await cookies()
+  const refreshToken = cookieStore.get('refreshToken')?.value
   if (!refreshToken) {
     return Response.json(
       {
@@ -17,9 +18,9 @@ export async function POST() {
     )
   }
   try {
-    const { payload } = await authApiRequest.sRefreshToken({
+    const { payload } = await guestApiRequest.sRefreshToken({
       refreshToken
-    })// Gửi refreshToken lên server để lấy accessToken mới
+    })
 
     const decodedAccessToken = jwt.decode(payload.data.accessToken) as {
       exp: number
@@ -27,14 +28,14 @@ export async function POST() {
     const decodedRefreshToken = jwt.decode(payload.data.refreshToken) as {
       exp: number
     }
-    ;(await cookieStore).set('accessToken', payload.data.accessToken, {
+    cookieStore.set('accessToken', payload.data.accessToken, {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
       secure: true,
       expires: decodedAccessToken.exp * 1000
     })
-    ;(await cookieStore).set('refreshToken', payload.data.refreshToken, {
+    cookieStore.set('refreshToken', payload.data.refreshToken, {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
@@ -43,6 +44,7 @@ export async function POST() {
     })
     return Response.json(payload)
   } catch (error: any) {
+    console.log(error)
     return Response.json(
       {
         message: error.message ?? 'Có lỗi xảy ra'

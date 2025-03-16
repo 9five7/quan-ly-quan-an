@@ -1,5 +1,11 @@
 import envConfig from '@/config'
-import { normalizePath } from '@/lib/utils'
+import {
+  getAccessTokenFormLocalStorage,
+  normalizePath,
+  removeTokensFromLocalStorage,
+  setAccessTokenToLocalStorage,
+  setRefreshTokenToLocalStorage
+} from '@/lib/utils'
 import { LoginResType } from '@/schemaValidations/auth.schema'
 import { redirect } from 'next/navigation'
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -52,7 +58,7 @@ const request = async <Response>(
   options?: CustomOptions | undefined
 ) => {
   let body: FormData | string | undefined = undefined
-   // xử lý body request nếu là FormData thì giữ nguyên nếu là object thì chuyển thành file JSON
+  // xử lý body request nếu là FormData thì giữ nguyên nếu là object thì chuyển thành file JSON
   if (options?.body instanceof FormData) {
     body = options.body
   } else if (options?.body) {
@@ -66,9 +72,9 @@ const request = async <Response>(
       : {
           'Content-Type': 'application/json'
         }
-           // Nếu đang chạy trên client, thêm token xác thực vào headers
+  // Nếu đang chạy trên client, thêm token xác thực vào headers
   if (isClient) {
-    const accessToken = localStorage.getItem('accessToken')
+    const accessToken = getAccessTokenFormLocalStorage()
     if (accessToken) {
       baseHeaders.Authorization = `Bearer ${accessToken}`
     }
@@ -77,7 +83,7 @@ const request = async <Response>(
   // Nếu truyền baseUrl thì lấy giá trị truyền vào, truyền vào '' thì đồng nghĩa với việc chúng ta gọi API đến Next.js Server
 
   const baseUrl = options?.baseUrl === undefined ? envConfig.NEXT_PUBLIC_API_ENDPOINT : options.baseUrl
- // Gửi request đến server
+  // Gửi request đến server
   const fullUrl = `${baseUrl}/${normalizePath(url)}`
   const res = await fetch(fullUrl, {
     ...options,
@@ -88,7 +94,7 @@ const request = async <Response>(
     body,
     method
   })
-      // Parse dữ liệu JSON trả về
+  // Parse dữ liệu JSON trả về
   const payload: Response = await res.json()
   const data = {
     status: res.status,
@@ -115,11 +121,10 @@ const request = async <Response>(
           })
           try {
             await clientLogoutRequest
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
           } catch (error) {
           } finally {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
+            removeTokensFromLocalStorage()
             clientLogoutRequest = null
             // Redirect về trang login có thể dẫn đến loop vô hạn
             // Nếu không không được xử lý đúng cách
@@ -139,13 +144,12 @@ const request = async <Response>(
   // Đảm bảo logic dưới đây chỉ chạy ở phía client (browser)
   if (isClient) {
     const normalizeUrl = normalizePath(url)
-    if (normalizeUrl === 'api/auth/login') {
+    if (['api/auth/login', 'api/guest/auth/login'].includes(normalizeUrl)) {
       const { accessToken, refreshToken } = (payload as LoginResType).data
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
-    } else if (normalizeUrl === 'api/auth/logout') {
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('refreshToken')
+      setAccessTokenToLocalStorage(accessToken)
+      setRefreshTokenToLocalStorage(refreshToken)
+    } else if (['api/auth/logout', 'api/guest/auth/logout'].includes(normalizeUrl)) {
+      removeTokensFromLocalStorage()
     }
   }
   return data
