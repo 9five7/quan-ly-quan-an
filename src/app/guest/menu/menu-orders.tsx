@@ -24,9 +24,9 @@ export default function MenuOrders() {
       return result + order.quantity * dish.price // nếu thấy thì return về
     }, 0)
   }, [dishes, orders])
-  // const totalDish = useMemo(() => {
-  //   return orders.reduce((total, order) => total + order.quantity, 0)
-  // }, [orders])
+  const totalDish = useMemo(() => {
+    return orders.reduce((total, order) => total + order.quantity, 0)
+  }, [orders])
   const handleChange = (dishId: number, quantity: number) => {
     setOrders((prevOrders) => {
       if (quantity === 0) {
@@ -60,13 +60,14 @@ export default function MenuOrders() {
           <div
             key={dish.id}
             className={cn('flex gap-4', {
-              'pointer-events-none': dish.status === DishStatus.Unavailable 
-            })}//pointer-events-none thuộc tính css giup khóa event
+              'pointer-events-none': dish.status === DishStatus.Unavailable
+            })} //pointer-events-none thuộc tính css giup khóa event
           >
-
             <div className='flex-shrink-0 relative'>
               {dish.status === DishStatus.Unavailable && (
-                <span className='absolute flex inset-0 items-center justify-center text-white bg-black/50 z-0'>Hết hàng</span>
+                <span className='absolute flex inset-0 items-center justify-center text-white bg-black/50 z-0'>
+                  Hết hàng
+                </span>
               )}
               <Image
                 src={dish.image}
@@ -93,8 +94,7 @@ export default function MenuOrders() {
       <div className='sticky bottom-0'>
         <Button onClick={handleOrder} disabled={orders.length === 0} className='w-full justify-between'>
           <span>
-            {/* Gọi Món · {orders.length} món - SL:({totalDish}) : */}
-            Gọi Món · {orders.length}  :
+            Gọi Món · {orders.length} món - SL:({totalDish}) :
           </span>
           <span>{formatCurrency(totalPrice)}</span>
         </Button>

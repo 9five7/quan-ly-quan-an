@@ -2,13 +2,23 @@
 
 import authApiRequest from '@/apiRequests/auth'
 import { useAppContext } from '@/components/app-provider'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Role } from '@/constants/type'
 import { cn, handleErrorApi } from '@/lib/utils'
 import { RoleType } from '@/types/jwt.types'
 import { useMutation } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
 const menuItems: {
   title: string
   href: string
@@ -26,7 +36,7 @@ const menuItems: {
   },
   {
     title: 'Đơn hàng',
-    href: '/guest/orders',  
+    href: '/guest/orders',
     role: [Role.Guest]
   },
   {
@@ -74,9 +84,21 @@ export default function NavItems({ className }: { className?: string }) {
         return null
       })}
       {role && (
-        <div className={cn(className, 'cursor-pointer')} onClick={logout}>
-          Đăng xuất
-        </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <div className={cn(className, 'cursor-pointer')}>Đăng xuất</div>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Bạn có muốn đăng xuất không?</AlertDialogTitle>
+              <AlertDialogDescription>Việc đăng xuất có thể làm mất đi hóa đơn của bạn</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Thoát</AlertDialogCancel>
+              <AlertDialogAction onClick={logout}>OK</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   )
