@@ -42,6 +42,7 @@ export default function OrderStatics({
   statics,
   tableList,
   servingGuestByTableNumber
+
 }: {
   statics: Statics
   tableList: TableListResType['data']
@@ -71,7 +72,9 @@ export default function OrderStatics({
                 const orders = selectedServingGuest[Number(guestId)]
                 return (
                   <div key={guestId}>
-                    <OrderGuestDetail guest={orders[0].guest} orders={orders} />
+                    <OrderGuestDetail guest={orders[0].guest} orders={orders}  onPaySuccess={() => {
+                        setSelectedTableNumber(0)
+                      }} />
                     {index !== Object.keys(selectedServingGuest).length - 1 && <Separator className='my-5' />}
                   </div>
                 )
