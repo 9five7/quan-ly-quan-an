@@ -1,8 +1,12 @@
+import AutoPagination from '@/components/auto-pagination'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import AutoPagination from '@/components/auto-pagination'
-import { useEffect, useState } from 'react'
+import { TableStatus } from '@/constants/type'
+import { cn, getVietnameseTableStatus, simpleMatchText } from '@/lib/utils'
+import { useTableListQuery } from '@/queries/useTable'
+import { TableListResType } from '@/schemaValidations/table.schema'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,10 +19,7 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table'
-import { cn, getVietnameseTableStatus, simpleMatchText } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
-import { TableListResType } from '@/schemaValidations/table.schema'
-import { TableStatus } from '@/constants/type'
+import { useEffect, useState } from 'react'
 
 type TableItem = TableListResType['data'][0]
 
@@ -48,7 +49,8 @@ const PAGE_SIZE = 10
 
 export function TablesDialog({ onChoose }: { onChoose: (table: TableItem) => void }) {
   const [open, setOpen] = useState(false)
-  const data: TableListResType['data'] = []
+  const tableListQuery = useTableListQuery()
+  const data = tableListQuery.data?.payload.data || []
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -175,7 +177,13 @@ export function TablesDialog({ onChoose }: { onChoose: (table: TableItem) => voi
                 <AutoPagination
                   page={table.getState().pagination.pageIndex + 1}
                   pageSize={table.getPageCount()}
-                  pathname='/manage/Tables'
+                  onClick={(pageNumber) =>
+                    table.setPagination({
+                      pageIndex: pageNumber - 1,
+                      pageSize: PAGE_SIZE
+                    })
+                  }
+                  isLink={false}
                 />
               </div>
             </div>

@@ -1,31 +1,37 @@
 'use client'
+import Quantity from '@/app/guest/menu/quantity'
+import GuestsDialog from '@/app/manage/orders/guests-dialog'
+import { TablesDialog } from '@/app/manage/orders/tables-dialog'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { PlusCircle } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { GuestLoginBody, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { TablesDialog } from '@/app/manage/orders/tables-dialog'
-import { GetListGuestsResType } from '@/schemaValidations/account.schema'
 import { Switch } from '@/components/ui/switch'
-import GuestsDialog from '@/app/manage/orders/guests-dialog'
-import { CreateOrdersBodyType } from '@/schemaValidations/order.schema'
-import Quantity from '@/app/guest/menu/quantity'
-import Image from 'next/image'
-import { cn, formatCurrency } from '@/lib/utils'
 import { DishStatus } from '@/constants/type'
-import { DishListResType } from '@/schemaValidations/dish.schema'
+import { toast } from '@/hooks/use-toast'
+import { cn, formatCurrency, handleErrorApi } from '@/lib/utils'
+import { useCreateGuestMutation } from '@/queries/useAccount'
+import { useDishListQuery } from '@/queries/useDish'
+import { useCreateOrderMutation } from '@/queries/useOrder'
+import { GetListGuestsResType } from '@/schemaValidations/account.schema'
+import { GuestLoginBody, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
+import { CreateOrdersBodyType } from '@/schemaValidations/order.schema'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { PlusCircle } from 'lucide-react'
+import Image from 'next/image'
+import { useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export default function AddOrder() {
   const [open, setOpen] = useState(false)
   const [selectedGuest, setSelectedGuest] = useState<GetListGuestsResType['data'][0] | null>(null)
   const [isNewGuest, setIsNewGuest] = useState(true)
   const [orders, setOrders] = useState<CreateOrdersBodyType['orders']>([])
-  const dishes: DishListResType['data'] = []
+  const addOrderMutation = useCreateOrderMutation()
+  const createGuestMutation = useCreateGuestMutation()
+  const { data } = useDishListQuery()
+  const dishes = useMemo(() => data?.payload.data ?? [], [data])
 
   const totalPrice = useMemo(() => {
     return dishes.reduce((result, dish) => {
@@ -60,10 +66,50 @@ export default function AddOrder() {
     })
   }
 
-  const handleOrder = async () => {}
-
+  const handleOrder = async () => {
+    try {
+      let guestId = selectedGuest?.id
+      if (isNewGuest) {
+        const guestRes = await createGuestMutation.mutateAsync({
+          name,
+          tableNumber
+        })
+        guestId = guestRes.payload.data.id
+      }
+      if (!guestId) {
+        toast({
+          description: 'Hãy chọn khách hàng'
+        })
+        return
+      }
+      await addOrderMutation.mutateAsync({
+        guestId,
+        orders
+      })
+      reset()
+    } catch (error) {
+      handleErrorApi({
+        error,
+        setError: form.setError
+      })
+    }
+  }
+  const reset = () => {
+    form.reset()
+    setIsNewGuest(true)
+    setSelectedGuest(null)
+    setOrders([])
+    setOpen(false)
+  }
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
+    <Dialog
+      onOpenChange={(value) => {
+        if (!value) {
+          reset()
+        }
+      }}
+      open={open}
+    >
       <DialogTrigger asChild>
         <Button size='sm' className='h-7 gap-1'>
           <PlusCircle className='h-3.5 w-3.5' />

@@ -56,7 +56,7 @@ export default function EditOrder({
       })
       setSelectedDish(data.payload.data.dishSnapshot)
     }
-  }, [data, form, selectedDish])
+  }, [data, form])
   const onSubmit = async (values: UpdateOrderBodyType) => {
     if (updateOrderMutation.isPending) return
     try {
@@ -65,8 +65,9 @@ export default function EditOrder({
       toast({
         description: result.payload.message
       })
-      reset()
+    
       onSubmitSuccess && onSubmitSuccess()
+      reset()
     } catch (error) {
       handleErrorApi({
         error,

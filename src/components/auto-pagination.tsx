@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { Button } from '@/components/ui/button'
 import {
   Pagination,
   PaginationContent,
@@ -12,7 +13,9 @@ import { cn } from '@/lib/utils'
 interface Props {
   page: number
   pageSize: number
-  pathname: string
+  pathname?: string
+  isLink?: boolean
+  onClick?: (pageNumber: number) => void
 }
 
 /**
@@ -37,7 +40,13 @@ Với range = 2 áp dụng cho khoảng cách đầu, cuối và xung quanh curr
  */
 
 const RANGE = 2
-export default function AutoPagination({ page, pageSize, pathname }: Props) {
+export default function AutoPagination({
+  page,
+  pageSize,
+  pathname = '/',
+  isLink = true,
+  onClick = (pageNumber) => {}
+}: Props) {
   const renderPagination = () => {
     let dotAfter = false
     let dotBefore = false
@@ -82,17 +91,30 @@ export default function AutoPagination({ page, pageSize, pathname }: Props) {
         }
         return (
           <PaginationItem key={index}>
-            <PaginationLink
-              href={{
-                pathname,
-                query: {
-                  page: pageNumber
-                }
-              }}
-              isActive={pageNumber === page}
-            >
-              {pageNumber}
-            </PaginationLink>
+            {isLink && (
+              <PaginationLink
+                href={{
+                  pathname,
+                  query: {
+                    page: pageNumber
+                  }
+                }}
+                isActive={pageNumber === page}
+              >
+                {pageNumber}
+              </PaginationLink>
+            )}
+            {!isLink && (
+              <Button
+                onClick={() => {
+                  onClick(pageNumber)
+                }}
+                variant={pageNumber === page ? 'outline' : 'ghost'}
+                className='w-9 h-9 p-0'
+              >
+                {pageNumber}
+              </Button>
+            )}
           </PaginationItem>
         )
       })
