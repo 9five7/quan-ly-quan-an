@@ -9,10 +9,12 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import { Role, RoleValues } from '@/constants/type'
 import { toast } from '@/hooks/use-toast'
 import { handleErrorApi } from '@/lib/utils'
 import { useAccountQueryById, useUpdateEmployeeMutation } from '@/queries/useAccount'
@@ -44,7 +46,8 @@ export default function EditEmployee({
       avatar: undefined,
       password: undefined,
       confirmPassword: undefined,
-      changePassword: false
+      changePassword: false,
+      role: Role.Employee
     }
   })
   const avatar = form.watch('avatar')
@@ -60,14 +63,15 @@ export default function EditEmployee({
   }, [file, avatar])
   useEffect(() => {
     if (data) {
-      const { name, avatar, email } = data.payload.data
+      const { name, avatar, email, role } = data.payload.data
       form.reset({
         name,
         avatar: avatar ?? undefined,
         email,
         changePassword: form.getValues('changePassword'),
         password: form.getValues('password'),
-        confirmPassword: form.getValues('confirmPassword')
+        confirmPassword: form.getValues('confirmPassword'),
+        role
       })
     }
   }, [data, form])
@@ -186,6 +190,35 @@ export default function EditEmployee({
                         <Input id='email' className='w-full' {...field} />
                         <FormMessage />
                       </div>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='role'
+                render={({ field }) => (
+                  <FormItem>
+                    <div className='grid grid-cols-4 items-center justify-items-start gap-4'>
+                      <Label htmlFor='description'>Trạng thái</Label>
+                      <div className='col-span-3 w-full space-y-2'>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Chức vụ ' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {RoleValues.filter((role) => role !== RoleValues[2]).map((role) => (
+                              <SelectItem key={role} value={role}>
+                                {role}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <FormMessage />
                     </div>
                   </FormItem>
                 )}

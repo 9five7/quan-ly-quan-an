@@ -107,6 +107,7 @@ export default function AddOrder() {
         if (!value) {
           reset()
         }
+        setOpen(value)
       }}
       open={open}
     >

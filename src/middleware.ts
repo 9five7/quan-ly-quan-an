@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server'
 
 const managePaths = ['/manage']
 const guestPaths = ['/guest']
+const onlyOwnerPaths = ['/manage/accounts']
 const privatePaths = [...managePaths, ...guestPaths]
 const unAuthPaths = ['/login']
 // This function can be marked `async` if using `await` inside
@@ -37,9 +38,12 @@ export function middleware(request: NextRequest) {
     const isGuestGoToManagePath = role === Role.Guest && managePaths.some((path) => pathname.startsWith(path))
     // manage nhưng cố vào trang guest
     const isNotGuestGoToGuestPath = role !== Role.Guest && guestPaths.some((path) => pathname.startsWith(path))
-    if (isGuestGoToManagePath || isNotGuestGoToGuestPath) {
+    // không phải role admin mà cố vào trang quản lý
+    const isNotOwnerGoToOwnerPath = role !== Role.Owner && onlyOwnerPaths.some((path) => pathname.startsWith(path))
+    if (isGuestGoToManagePath || isNotGuestGoToGuestPath || isNotOwnerGoToOwnerPath) {
       return NextResponse.redirect(new URL('/', request.url))
     }
+    
   }
 
   return NextResponse.next()

@@ -1,3 +1,4 @@
+import DashboardMain from '@/app/manage/dashboard/dashboard-main'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 export default async function Dashboard() {
   return (
@@ -8,7 +9,9 @@ export default async function Dashboard() {
             <CardTitle>Dashboard</CardTitle>
             <CardDescription>Phân tích các chỉ số</CardDescription>
           </CardHeader>
-          <CardContent></CardContent>
+          <CardContent>
+            <DashboardMain />
+          </CardContent>
         </Card>
       </div>
     </main>

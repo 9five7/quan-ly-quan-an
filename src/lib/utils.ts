@@ -8,11 +8,11 @@ import { toast } from '@/hooks/use-toast'
 import { EntityError } from '@/lib/http'
 import { TokenPayload } from '@/types/jwt.types'
 import { clsx, type ClassValue } from 'clsx'
+import { format } from 'date-fns'
 import jwt from 'jsonwebtoken'
+import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
 import { UseFormSetError } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
-import { format } from 'date-fns'
-import { BookX, CookingPot, HandCoins, Loader, Truck } from 'lucide-react'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -53,7 +53,11 @@ export const removeTokensFromLocalStorage = () => {
   isBrowser && localStorage.removeItem('accessToken')
   isBrowser && localStorage.removeItem('refreshToken')
 }
-export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuccess?: () => void }) => {
+export const checkAndRefreshToken = async (param?: {
+  onError?: () => void
+  onSuccess?: () => void
+  force?: boolean
+}) => {
   // không nên đưa logic lấy access token và refresh token khỏi funcution này
   // vì để mỗi lần mà checkAndRefreshToken chạy thì nó sẽ lấy access token và refresh token mới
   //tránh hiện tượng bug nó lấy access token và refresh token cũ
@@ -76,7 +80,7 @@ export const checkAndRefreshToken = async (param?: { onError?: () => void; onSuc
   // thì sẽ kiểm tra còn 1/3 thời gian (3s) thì sẽ refresh token lại
   //thời gian còn lại là : decodedAccessToken.exp - now
   //thời gian hết hạn của access token - thời gian hiện tại: decodedAccessToken.exp - decodedAccessToken.iat
-  if (decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
+  if (param?.force || decodedAccessToken.exp - now < (decodedAccessToken.exp - decodedAccessToken.iat) / 3) {
     try {
       const role = decodedRefreshToken.role
       const res = role === Role.Guest ? await guestApiRequest.refreshToken() : await authApiRequest.refreshToken()
@@ -146,7 +150,7 @@ export function removeAccents(str: string) {
 
 export const simpleMatchText = (fullText: string, matchText: string) => {
   return removeAccents(fullText.toLowerCase()).includes(removeAccents(matchText.trim().toLowerCase()))
-}// kiểm tra matchText có khớp với fullText hay không
+} // kiểm tra matchText có khớp với fullText hay không
 export const formatDateTimeToLocaleString = (date: string | Date) => {
   return format(date instanceof Date ? date : new Date(date), 'HH:mm:ss dd/MM/yyyy')
 }
