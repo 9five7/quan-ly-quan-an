@@ -6,7 +6,7 @@ import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/hooks/use-toast'
-import { handleErrorApi } from '@/lib/utils'
+import { generateSocketInstance, handleErrorApi } from '@/lib/utils'
 import { useLoginMutation } from '@/queries/useAccount'
 import { LoginBody, LoginBodyType } from '@/schemaValidations/auth.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,7 +19,7 @@ export default function LoginForm() {
   const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
   const clearToken = searchParams.get('clearTokens')
-  const { setRole } = useAppContext()
+  const { setRole,setSocket } = useAppContext()
   const router = useRouter()
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -39,6 +39,7 @@ export default function LoginForm() {
       const result = await loginMutation.mutateAsync(data)
       toast({ description: result.payload.message })
       setRole(result.payload.data.account.role)
+      setSocket(generateSocketInstance(result.payload.data.accessToken))
       router.push('/manage/dashboard')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

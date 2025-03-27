@@ -22,7 +22,7 @@ export default function DropdownAvatar() {
     mutationFn: authApiRequest.logout
   })
   const useAccountProfile = useAccountQuery()
-  const { setRole } = useAppContext()
+  const { setRole,disconnectSocket } = useAppContext()
   const data = useAccountProfile.data
   const account = data?.payload.data
   const router = useRouter()
@@ -31,6 +31,7 @@ export default function DropdownAvatar() {
     try {
       await logoutMutation.mutateAsync()
       setRole()
+      disconnectSocket()
       router.push('/')
     } catch (error) {
       handleErrorApi({ error })
