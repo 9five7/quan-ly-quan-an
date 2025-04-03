@@ -136,7 +136,7 @@ export const getVietnameseOrderStatus = (status: (typeof OrderStatus)[keyof type
   }
 }
 export const getTableLink = ({ token, tableNumber }: { token: string; tableNumber: number }) => {
-  return envConfig.NEXT_PUBLIC_URL + '/tables/' + tableNumber + '?token=' + token
+  return 'https://quan-ly-quan-an-81c8.vercel.app' + `/tables/` + tableNumber + '?token=' + token
 }
 export const decodeToken = (token: string) => {
   return jwt.decode(token) as TokenPayload
