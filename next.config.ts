@@ -1,11 +1,10 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['ik.imagekit.io','backendquanlyquanan.onrender.com','via.placeholder.com'], // Thêm domain của ImageKit
-  },
+    domains: ['ik.imagekit.io', 'api-bigboy.duthanhduoc.com', 'via.placeholder.com'] // Thêm domain của ImageKit
+  }
+}
 
-};
-
-export default nextConfig;
+export default nextConfig
